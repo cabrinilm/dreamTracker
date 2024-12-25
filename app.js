@@ -1,13 +1,19 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-async function createAndAddData(date, sleep_time, wake_time, notes = '') {
-    const db = await open({
+
+ // connection with database
+ async function getDBConnection() {
+    return open({
         filename: './banco.db',
         driver: sqlite3.Database,
     });
-
-    await db.run(`
+ }
+  
+// initialize database creating the table
+  async function initializeDatabase() {
+    const db = await getDBConnection();
+     await db.run(`
         CREATE TABLE IF NOT EXISTS sleep_records (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           date DATE NOT NULL,
@@ -17,6 +23,13 @@ async function createAndAddData(date, sleep_time, wake_time, notes = '') {
           notes TEXT
         )
     `);
+    console.log('Database initialized');
+    await db.close();
+     }
+
+
+
+      // calculate the duration of sleep
 
     function calculateDuration(sleep_time, wake_time) {
         const [sleepHour, sleepMinute] = sleep_time.split(':').map(Number);
@@ -34,9 +47,18 @@ async function createAndAddData(date, sleep_time, wake_time, notes = '') {
         
     }
 
-    const duration = calculateDuration(sleep_time, wake_time);
 
-    await db.run(`INSERT INTO sleep_records(date, sleep_time, wake_time, duration, notes) VALUES (?, ?, ?, ?, ?)`, [
+
+
+     // add new sleep record to the database
+
+    async function addSleepRecord(date,sleep_time,wake_time,notes = '') {
+        const db = await getDBConnection();
+        const duration = calculateDuration(sleep_time, wake_time)
+
+
+        await db.run(
+        `INSERT INTO sleep_records(date, sleep_time, wake_time, duration, notes) VALUES (?, ?, ?, ?, ?)`, [
         date,
         sleep_time,
         wake_time,
@@ -44,7 +66,23 @@ async function createAndAddData(date, sleep_time, wake_time, notes = '') {
         notes,
     ]);
 
-    console.log('Registered successfully');
+
+    console.log('Sleep record added successfully');
+    await db.close();
 }
 
-createAndAddData('2024-12-24', '00:05', '07:20', 'went late');
+
+   // retrieve all sleep records from database
+
+   async function getSleepRecords(){
+    const db = await getDBConnection();
+    const records = await db.all(`SELECT * FROM sleep_records`);
+    await db.close();
+    return records
+   }
+
+
+
+   initializeDatabase();
+
+   export { addSleepRecord, getSleepRecords }
