@@ -81,8 +81,18 @@ import { open } from 'sqlite';
     return records
    }
 
+  // find specific register 
+   async  function findSpecificId(number){
+    const db = await getDBConnection();
+    const records = await db.all(`SELECT * FROM sleep_records`)
+    await db.close(); 
+    return records[number - 1] 
+    
+   }
+   // remove any register searching by date
 
 
+ 
    initializeDatabase();
 
-   export { addSleepRecord, getSleepRecords }
+   export { addSleepRecord, getSleepRecords, findSpecificId}
