@@ -1,28 +1,28 @@
 import express from 'express';
-import { addSleepRecord, getSleepRecords, findSpecificId } from './app.js';
+import { addSleepRecord, getSleepRecords, findSpecificId, removeSpecificId } from './app.js';
 
 const app = express();
 app.use(express.json());
 // remove register 
 
-// app.delete('/dreamTracker/:id', async (req,res) => {
-//     try {
-//         res.status(200).json(findSpecificId(req.params.id));
-//        } catch (error){
-//         console.error(error);
-//         res.status(500).json({error : 'Error trying to find'})
-//        }
-//     });
+app.delete('/dreamTracker/:id', async (req, res) => {
+    try {
+        await removeSpecificId(Number(req.params.id));
+        res.status(200).json({ message: `Deleted the ID ${req.params.id}` });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
     
 
 // find specific register
 app.get('/dreamTracker/:id', async (req,res) => {
    try {
-     const rightId = findSpecificId(req.params.id)
+     const rightId =  await findSpecificId(Number(req.params.id))
     res.status(200).json(rightId);
     
    } catch (error){
-    console.error(error);
     res.status(500).json({error : 'Error trying to find'})
    }
 });

@@ -84,15 +84,29 @@ import { open } from 'sqlite';
   // find specific register 
    async  function findSpecificId(number){
     const db = await getDBConnection();
-    const records = await db.all(`SELECT * FROM sleep_records`)
+    const records = await db.get(`SELECT * FROM sleep_records WHERE id = ?`, [number]);
     await db.close(); 
+    if (number < 1 || number > records.length){
+        throw new Error('ID not found')
+    }
     return records[number - 1] 
     
    }
    // remove any register searching by date
+   async function removeSpecificId(id) {
+    const db = await getDBConnection();
+    const record = await db.get(`SELECT * FROM sleep_records WHERE id = ?`, [id]);
 
+    if (!record) {
+        await db.close();
+        throw new Error('ID not found');
+    }
 
- 
+    await db.run(`DELETE FROM sleep_records WHERE id = ?`, [id]);
+    await db.close();
+}
+
+    
    initializeDatabase();
 
-   export { addSleepRecord, getSleepRecords, findSpecificId}
+   export { addSleepRecord, getSleepRecords, findSpecificId, removeSpecificId}
