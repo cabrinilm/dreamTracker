@@ -14,7 +14,7 @@ import { open } from 'sqlite';
 async function initializeDatabase() {
     const db = await getDBConnection();
 
-    // Criar a tabela, caso não exista, incluindo a coluna average_last_7days
+  
     await db.run(`
         CREATE TABLE IF NOT EXISTS sleep_records (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +27,7 @@ async function initializeDatabase() {
         )
     `);
 
-    // Se a coluna average_last_7days não existir, adicione-a
+    
     const columns = await db.all("PRAGMA table_info(sleep_records)");
     const columnExists = columns.some(column => column.name === "average_last_7days");
 
