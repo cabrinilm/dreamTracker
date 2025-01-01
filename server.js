@@ -1,9 +1,14 @@
 import express from 'express';
 import { addSleepRecord, getSleepRecords, findSpecificId, removeSpecificId } from './app.js';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
-// remove register 
+app.use(cors({
+    origin: 'http://localhost:5176',  // O frontend está rodando na porta 5176
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  }));
 
 app.delete('/dreamTracker/:id', async (req, res) => {
     try {
